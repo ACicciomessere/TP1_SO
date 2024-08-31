@@ -19,21 +19,21 @@ int main(int argc, char *argv[]) {
     }
     
     files_count = argc - 1;
-    
-    pid = fork();
 
-    int create_slave() {
-        if(pipe(pipe_array[2])){
-            exit(1);
-        }
+}
 
-        if (pid == 0) {
-            // Child process
-            execv("./slaves.c", argv);
-        } else {
-            printf("Not able to create child process\n");
-            return -1;
-        }
+int create_slave() {
+    if(pipe(pipe_array[2])){
+        exit(1);
     }
 
+    pid = fork();
+
+    if (pid == 0) {
+        // Child process
+        execv("./slaves.c", argv);
+    } else {
+        printf("Not able to create child process\n");
+        return -1;
+    }
 }
