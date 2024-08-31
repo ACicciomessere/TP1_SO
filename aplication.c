@@ -11,7 +11,6 @@ int main(int argc, char *argv[]) {
     pid_t pid;
     char buffer[BUFFER_SIZE] = {0};
     int files_count;
-    int fd[2];
     int pipe_array[2];
 
     if (argc < 2) {
