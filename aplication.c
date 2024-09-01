@@ -6,6 +6,13 @@
 
 #define BUFFER_SIZE 1024
 #define SLAVES_AMOUNT 5
+#define INITIAL_FILES_AMOUNT 100
+
+typedef struct {
+    pid_t pid;
+    int fd_read;
+    int fd_write;
+} slave;
 
 int main(int argc, char *argv[]) {
     pid_t pid;
@@ -22,7 +29,7 @@ int main(int argc, char *argv[]) {
 
 }
 
-int create_slave() {
+int createSlave() {
     if(pipe(pipe_array[2])){
         exit(1);
     }
@@ -36,4 +43,32 @@ int create_slave() {
         printf("Not able to create child process\n");
         return -1;
     }
+}
+
+int getSlavesAmount(int files_amount){
+    if(files_amount < INITIAL_FILES_AMOUNT){
+        return SLAVES_AMOUNT;
+    }
+
+    return (int) (files_amount/INITIAL_FILES_AMOUNT) * SLAVES_AMOUNT;
+}
+
+void sendFilesToSlaves(char * files[], int files_amount, int slaves_amount ){
+
+    char w_buff[BUFFER_SIZE];
+    
+    for(int i = 0; i < slaves_amount && files_amount > 0; i++){
+
+        sprintf(w_buff,"%s",files[files_amount--]);
+        int r_write = write(slave[i].fd_write, w_buff, sizeof(w_buff));
+
+        if (wr < 0){
+            perror("write");
+            exit(1);
+        }
+    }
+
+    
+
+    
 }
