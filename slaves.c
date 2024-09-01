@@ -35,7 +35,7 @@ int main() {
 
         char file_name = bname(f_buffer);
 
-        printf(string, "File: %s, Hash: %s\n, Slave ID: %s\n", file_name, hash, pid);
+        printf("File: %s, Hash: %s\n, Slave ID: %s\n", file_name, hash, pid);
 
         strcpy(string, "File: %s, Hash: %s\n, Slave ID: %s\n", file_name, hash, pid);
 
