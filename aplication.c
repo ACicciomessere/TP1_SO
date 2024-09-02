@@ -14,11 +14,11 @@ typedef struct {
     int fd_write;
 } slave;
 
+slave slaves[SLAVES_AMOUNT]; 
+
 int main(int argc, char *argv[]) {
-    pid_t pid;
     char buffer[BUFFER_SIZE] = {0};
     int files_count;
-    int pipe_array[2];
 
     if (argc < 2) {
         printf("Not enough arguments\n");
@@ -26,22 +26,27 @@ int main(int argc, char *argv[]) {
     }
     
     files_count = argc - 1;
-
 }
 
 int createSlave() {
-    if(pipe(pipe_array[2])){
+    int pipe_array[2];
+    pid_t pid;
+
+    if(pipe(pipe_array)==-1){  //en el caso de error cerramos
         exit(1);
     }
 
     pid = fork();
 
-    if (pid == 0) {
+    if (pid == 0) { //estamos en el hijo
         // Child process
         execv("./slaves.c", argv);
-    } else {
+    } 
+    else if (pid == -1){ //tenemos un error al crear el hijo 
         printf("Not able to create child process\n");
         return -1;
+    }
+    else {  //estamos en el padre
     }
 }
 
@@ -60,9 +65,9 @@ void sendFilesToSlaves(char * files[], int files_amount, int slaves_amount ){
     for(int i = 0; i < slaves_amount && files_amount > 0; i++){
 
         sprintf(w_buff,"%s",files[files_amount--]);
-        int r_write = write(slave[i].fd_write, w_buff, sizeof(w_buff));
+        int r_write = write(slaves[i].fd_write, w_buff, sizeof(w_buff));
 
-        if (wr < 0){
+        if (wr < 0){                                                    //quicieron ponet r_write ???          todo
             perror("write");
             exit(1);
         }
