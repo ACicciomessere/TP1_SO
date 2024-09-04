@@ -8,6 +8,8 @@
 #define SLAVES_AMOUNT 5
 #define INITIAL_FILES_AMOUNT 100
 
+ //vamos a usar exit() o return ;    no creo q sea bueno ir combinando ambos todo
+
 typedef struct {
     pid_t pid;
     int fd_read;
@@ -33,7 +35,7 @@ int createSlave() {
     pid_t pid;
 
     if(pipe(pipe_array)==-1){  //en el caso de error cerramos
-        exit(1);
+        return -1;
     }
 
     pid = fork();
@@ -46,8 +48,8 @@ int createSlave() {
         printf("Not able to create child process\n");
         return -1;
     }
-    else {  //estamos en el padre
-    }
+
+    return 0;   //porq no devuelve void ?? todo
 }
 
 int getSlavesAmount(int files_amount){
@@ -67,13 +69,10 @@ void sendFilesToSlaves(char * files[], int files_amount, int slaves_amount ){
         sprintf(w_buff,"%s",files[files_amount--]);
         int r_write = write(slaves[i].fd_write, w_buff, sizeof(w_buff));
 
-        if (wr < 0){                                                    //quicieron ponet r_write ???          todo
+        if (r_write < 0){                                                  
             perror("write");
             exit(1);
         }
     }
-
-    
-
-    
+   
 }
