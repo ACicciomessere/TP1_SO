@@ -1,55 +1,49 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/wait.h>
-#include <sys/types.h>
-#include <sys/select.h>
-
-#define BUFFER_SIZE 1024
-#define SLAVES_AMOUNT 5
-#define INITIAL_FILES_AMOUNT 100
-
- //vamos a usar exit() o return ;    no creo q sea bueno ir combinando ambos todo
-
-typedef struct {
-    pid_t pid;
-    int fd_read;
-    int fd_write;
-} slave;
-
-slave slaves[SLAVES_AMOUNT]; 
+#include <aplication.h>
 
 int main(int argc, char *argv[]) {
     char buffer[BUFFER_SIZE] = {0};
-    int files_count;
+    int files_count= argc - 1;
+    int cant_slaves = getSlavesAmount(files_count); 
+    pipe_master_slaves pipes[cant_slaves - 1];
 
     if (argc < 2) {
         printf("Not enough arguments\n");
         return -1;
     }
-    
-    files_count = argc - 1;
+
+    for(int i=0; i<cant_slaves ; i++){
+        if(pipe(pipes[i].pipe_to_slave) == -1 || pipe(pipes[i].pipe_to_master) == -1){
+           perror("Couldnt create pipe.\n");
+           exit(ERROR); 
+        }
+
+        if((pipes[i].pid = fork()) == 0 ){
+           int j = i -1;
+           while (j >= 0){                                       
+                close(pipes[j].pipe_to_slave[1]);
+                close(pipes[j].pipe_to_master[0]);
+                j--;
+           } 
+           createSlave(pipes[j].pipe_to_slave[0], pipes[j].pipe_to_slave[1], pipes[j].pipe_to_master[0], pipes[j].pipe_to_master[1]);
+        }
+        close(pipes[i].pipe_to_slave[0]);
+        close(pipes[i].pipe_to_master[1]);
+    }
+ 
 }
 
-int createSlave() {
-    int pipe_array[2];
-    pid_t pid;
+void createSlave(int fd_ms_r, int fd_ms_w, int fd_sm_r, int fd_sm_w) {
 
-    if(pipe(pipe_array)==-1){  //en el caso de error cerramos
-        return -1;
-    }
+    close(fd_ms_w);
+    close(fd_sm_r);
+    close(STDOUT_FILENO);
+    dup(fd_sm_w);
+    close(STDIN_FILENO);
+    dup(fd_ms_r);
 
-    pid = fork();
-
-    if (pid == 0) { //estamos en el hijo
-        // Child process
-        execv("./slaves.c", argv);
-    } 
-    else if (pid == -1){ //tenemos un error al crear el hijo 
-        printf("Not able to create child process\n");
-        return -1;
-    }
-
-    return 0;   //porq no devuelve void ?? todo
+    close(fd_sm_w);
+    close(fd_ms_r);
+    execve("./slave.eje", "./salve.eje", NULL);
 }
 
 int getSlavesAmount(int files_amount){
@@ -60,19 +54,18 @@ int getSlavesAmount(int files_amount){
     return (int) (files_amount/INITIAL_FILES_AMOUNT) * SLAVES_AMOUNT;
 }
 
-void sendFilesToSlaves(char * files[], int files_amount, int slaves_amount ){
+void sendFilesToSlaves(char * files[], int files_amount, int slaves_amount, pipe_master_slaves pipes[]){
 
     char w_buff[BUFFER_SIZE];
     
     for(int i = 0; i < slaves_amount && files_amount > 0; i++){
 
         sprintf(w_buff,"%s",files[files_amount--]);
-        int r_write = write(slaves[i].fd_write, w_buff, sizeof(w_buff));
+        int r_write = write(pipes[i].pipe_to_master, w_buff, sizeof(w_buff));  //puede ser q sea el pipe_to_slave todo 
 
         if (r_write < 0){                                                  
             perror("write");
             exit(1);
         }
-    }
-   
+    } 
 }
