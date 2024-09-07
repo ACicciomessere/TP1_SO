@@ -41,7 +41,31 @@ shmADT createShm(char * name) {
 }
 
 shmAdt connectShm(char * shm) {
-      //implementar
+      int fd = shm_open(shm, O_RDWR, S_IRUSR | S_IWUSR);
+
+      if(fd == - 1) {
+            perror("Error connecting to shared memory");
+            exit(EXIT_FAILURE);
+      }
+
+      shmADT shm_map = mmap(NULL, sizeof(shmCDT), PROT_WRITE, MAP_SHARED, fd, 0);
+
+      if(shm_map == MAP_FAILED) {
+            perror("Error mapping shared memory");
+            exit(EXIT_FAILURE);
+      }
+
+      if(shm_map == NULL) {
+            finishShm(shm);
+            exit(EXIT_FAILURE);
+      }
+
+      if(sem_init(&shm->semaphore, 1, 1) == -1) {
+            perror("Error creating semaphore");
+            exit(EXIT_FAILURE);
+      }
+
+      return shm_map;
 }
 
 void writeShm(shmADT shm, char * msg, int size) {
@@ -50,16 +74,41 @@ void writeShm(shmADT shm, char * msg, int size) {
             exit(EXIT_FAILURE);
       }
 
-      //Falta terminar la implementacion
+      if(shm == NULL || buffer == NULL) {
+            perror("Invalid shared memory or buffer");
+            exit(EXIT_FAILURE);
+      }
+
+      int i;    //index
+
+      for(i = 0; i < BUFFER_SIZE && shm->buffer[shm->write_offset] != '\0'; i++) {
+            shm->buffer[shm->write_offset++] = buffer[i];
+      }
+
+      shm->buffer[shm->write_offset++] = buffer[i];
+
+      sem_post(&shm->semaphore);
+
+      return;
 }
 
 void readShm(shmADT shm, char * buffer) {
       if (sem_wait(&shm->semaphore) != 0) {
             perror("Failed to lock semaphore before accessing shared memory");
-            return EXIT_FAILURE;
+            exit(EXIT_FAILURE);
       }
 
-      //Falta terminar la implementacion
+      int i;   //index
+
+      for(i = 0; i < BUFFER_SIZE && shm->buffer[shm->read_offset] != 0; i++) {
+            buffer[i] = shm->buffer[shm->read_offset++];
+      }
+
+      shm->read_offset++;
+
+      buffer[i] = 0;
+
+      return;
 }
 
 
