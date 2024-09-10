@@ -23,9 +23,9 @@ typedef struct shmCDT * shmADT;
 
 shmADT createShm(char * name);
 
-shmADT connectShm(char * shm) 
+shmADT connectShm(char * shm);
 
-void writeShm(shmADT shm, char * msg, int size);
+void writeShm(shmADT shm, char * msg, int size, sem_t sem);
 
 void readShm(shmADT shm, char * buffer);
 

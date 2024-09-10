@@ -60,7 +60,7 @@ shmAdt connectShm(char * shm) {
       return shm_map;
 }
 
-void writeShm(shmADT shm, char * msg, int size, sem_t * sem) {
+void writeShm(shmADT shm, char * msg, int size, sem_t sem) {
       if(size > BUFFER_SIZE) {
             perror("Message too big for the buffer");
             exit(EXIT_FAILURE);

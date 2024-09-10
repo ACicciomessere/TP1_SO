@@ -27,7 +27,7 @@ typedef struct {
 } pipe_master_slaves;
 
 int getSlavesAmount(int files_amount);
-void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_master_slaves pipes[], shmADT shm);
+void sendFilesToSlaves(char * files[], int files_amount, int slaves_amount, pipe_master_slaves pipes[], shmADT shm);
 void createSlave(int fd_ms_r, int fd_ms_w, int fd_sm_r, int fd_sm_w);
 
 #endif

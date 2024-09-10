@@ -1,4 +1,5 @@
 #include "dot_eich/application.h"
+#include "dot_eich/sharedMemory.h"
 
 int main(int argc, char *argv[]) {
     int files_count= argc - 1;
@@ -10,7 +11,9 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    shmADT shm = createShm("shm");
+    char * shmName = "shm";
+
+    shmADT shm = createShm(shmName);        //Problema GCC
 
     for(int i=0; i<cant_slaves ; i++){
         if(pipe(pipes[i].pipe_to_slave) == -1 || pipe(pipes[i].pipe_to_master) == -1){
@@ -47,7 +50,8 @@ void createSlave(int fd_ms_r, int fd_ms_w, int fd_sm_r, int fd_sm_w) {
 
     close(fd_sm_w);
     close(fd_ms_r);
-    execve("./slave.eje", "./salve.eje", NULL);
+    char *const secArg[] = {"./slaves", NULL};
+    execve("./slave", secArg, NULL);
 }
 
 int getSlavesAmount(int files_amount){
@@ -59,7 +63,6 @@ int getSlavesAmount(int files_amount){
 }
 
 void sendFilesToSlaves(char * files[], int files_amount, int slaves_amount, pipe_master_slaves pipes[], shmADT shm){
-    int files_per_slave = files_amount/slaves_amount;
     char w_buff[BUFFER_SIZE];
     int files_read = 0;
 
@@ -82,31 +85,30 @@ void sendFilesToSlaves(char * files[], int files_amount, int slaves_amount, pipe
         FD_ZERO(&read_fds);
 
         for (int j = 0; j < slaves_amount; j++) {
-            FD_SET(pipes[j].slave_to_master[READ], &read_fds);
-            max_fd = (pipes[j].slave_to_master[READ] > max_fd) ? pipes[j].slave_to_master[READ] : max_fd;
+            FD_SET(pipes[j].pipe_to_master[READ], &read_fds);
+            max_fd = (pipes[j].pipe_to_master[READ] > max_fd) ? pipes[j].pipe_to_master[READ] : max_fd;
         }
 
         int select_ready = select(max_fd + 1, &read_fds, NULL, NULL, NULL);
 
         if (select_ready < 0) {
             perror("select ready");
-            return -1;
+            return;
         } else if (select_ready == 0) {
             continue;
         } else {
-            for (int j = 0; j < slaves_amount && i < files_amount; j++) {
-                if (FD_ISSET(pipes[j].slave_to_master[READ], &read_fds)) {
-                    ssize_t len = read(pipes[j].slave_to_master[READ], w_buff, sizeof(w_buff));
+            for (int j = 0, i = 0; j < slaves_amount && i < files_amount; j++) {
+                if (FD_ISSET(pipes[j].pipe_to_master[READ], &read_fds)) {
+                    ssize_t len = read(pipes[j].pipe_to_master[READ], w_buff, sizeof(w_buff));
 
                     if (len < 0) {
                         perror("read");
-                        return -1;
+                        return;
                     }
 
                     w_buff[len] = '\0';
-                    writeShm(shm, w_buff, strlen(w_buff), shm->semaphore); 
-                    fprintf(result,"%s",w_buff);
-                    write(pipes[j].master_to_slave[WRITE], files[i], strlen(files[i]));
+                    writeShm(shm, w_buff, strlen(w_buff), shm->semaphore);      //Problema GCC
+                    write(pipes[j].pipe_to_slave[WRITE], files[i], strlen(files[i]));
                     files_read++;
                 }
             }

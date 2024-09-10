@@ -2,9 +2,9 @@
 
 int main() {
 
-    char f_buffer[SLAVE_SIZE] = {0};
-    char hash[SLAVE_SIZE] = {0}; 
-    pid_t pid = getPid();
+    char f_buffer[SLAVE_SIZE];
+    char hash[SLAVE_SIZE]; 
+    pid_t pid = getpid();
     int can_read = 1;
     char *string = malloc(sizeof(char)*400);
 
@@ -24,9 +24,11 @@ int main() {
             return -1;
         }
 
-        char file_name = bname(f_buffer);
+        char* file_name = basename(f_buffer);
 
-        snprintf(string, sizeof(string), "File: %s, Hash: %s, Slave ID: %d\n", file_name, hash, pid);
+        int len = strlen(string);
+
+        snprintf(string, len, "File: %s, Hash: %s, Slave ID: %d\n", file_name, hash, pid);
         printf("%s \n", string);
     }
      
