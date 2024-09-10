@@ -16,6 +16,9 @@
 #define INITIAL_FILES_AMOUNT 100
 #define ERROR -1
 
+#define READ 0
+#define WRITE 1
+
 typedef struct {
     pid_t pid;
     int pipe_to_slave[2];

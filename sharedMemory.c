@@ -1,13 +1,5 @@
 #include <sharedMemory.h>
 
-typedef struct shmCDT {
-      char * name;
-      char buffer[BUFFER_SIZE];
-      int write_offset;
-      int read_offset;
-      sem_t semaphore;
-} shmCDT;
-
 shmADT createShm(char * name) {
       int fd = shm_open(name, O_CREAT | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
 
@@ -68,7 +60,7 @@ shmAdt connectShm(char * shm) {
       return shm_map;
 }
 
-void writeShm(shmADT shm, char * msg, int size) {
+void writeShm(shmADT shm, char * msg, int size, sem_t * sem) {
       if(size > BUFFER_SIZE) {
             perror("Message too big for the buffer");
             exit(EXIT_FAILURE);
@@ -79,7 +71,7 @@ void writeShm(shmADT shm, char * msg, int size) {
             exit(EXIT_FAILURE);
       }
 
-      int i;    //index
+      int i;
 
       for(i = 0; i < BUFFER_SIZE && shm->buffer[shm->write_offset] != '\0'; i++) {
             shm->buffer[shm->write_offset++] = buffer[i];
@@ -98,7 +90,7 @@ void readShm(shmADT shm, char * buffer) {
             exit(EXIT_FAILURE);
       }
 
-      int i;   //index
+      int i; 
 
       for(i = 0; i < BUFFER_SIZE && shm->buffer[shm->read_offset] != 0; i++) {
             buffer[i] = shm->buffer[shm->read_offset++];

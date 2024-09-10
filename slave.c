@@ -52,7 +52,7 @@ int hash_func(char *file, char *buffer) {
 
     FILE* pipe = popen(fun_command, "r");           //fun_command ?? o command             
     if(pipe == NULL){
-        printf("Error opening pipe\n");
+        perror("Error opening pipe\n");
         free(fun_command);
         return -1;
     }

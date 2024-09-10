@@ -7,6 +7,15 @@
 #include <sys/mman.h>
 #include <sys/stat.h> 
 
+
+typedef struct shmADT {
+      char * name;
+      char buffer[BUFFER_SIZE];
+      int write_offset;
+      int read_offset;
+      sem_t semaphore;
+} shmADT;
+
 #define BUFFER_SIZE 1024;
 
 typedef struct shmCDT * shmADT;
