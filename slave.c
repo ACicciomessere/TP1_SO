@@ -1,4 +1,4 @@
-#include <slave.h>
+#include "dot_eich/slave.h"
 
 int main() {
 

@@ -1,7 +1,6 @@
-#include <application.h>
+#include "dot_eich/application.h"
 
 int main(int argc, char *argv[]) {
-    char buffer[BUFFER_SIZE] = {0};
     int files_count= argc - 1;
     int cant_slaves = getSlavesAmount(files_count);
     pipe_master_slaves pipes[cant_slaves - 1];
@@ -57,17 +56,6 @@ int getSlavesAmount(int files_amount){
     }
 
     return (int) (files_amount/INITIAL_FILES_AMOUNT) * SLAVES_AMOUNT;
-}
-
-char * memoryPointer(char * pointer, char * mem, sem_t * sem){
-    while(*mem != '\0'){
-        sem_wait(sem);
-        *pointer = *mem;
-        pointer++;
-        mem++;
-    }
-    sem_post(sem);
-    return ++pointer;
 }
 
 void sendFilesToSlaves(char * files[], int files_amount, int slaves_amount, pipe_master_slaves pipes[], shmADT shm){

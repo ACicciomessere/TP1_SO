@@ -1,4 +1,4 @@
-#include <sharedMemory.h>
+#include "dot_eich/sharedMemory.h"
 
 shmADT createShm(char * name) {
       int fd = shm_open(name, O_CREAT | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);

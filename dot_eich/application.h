@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <semaphore.h>
+#include "sharedMemory.h"
 
 #define BUFFER_SIZE 1024
 #define SLAVES_AMOUNT 5
@@ -24,5 +25,9 @@ typedef struct {
     int pipe_to_slave[2];
     int pipe_to_master[2];
 } pipe_master_slaves;
+
+int getSlavesAmount(int files_amount);
+void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_master_slaves pipes[], shmADT shm);
+void createSlave(int fd_ms_r, int fd_ms_w, int fd_sm_r, int fd_sm_w);
 
 #endif

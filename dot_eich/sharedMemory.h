@@ -7,24 +7,23 @@
 #include <sys/mman.h>
 #include <sys/stat.h> 
 
-
+#define BUFFER_SIZE 1024
 #define NAME_SIZE 32
 
-typedef struct shmADT {
+typedef struct shmCDT {
       char name[NAME_SIZE];
       char buffer[BUFFER_SIZE];
       int write_offset;
       int read_offset;
       sem_t semaphore;
-} shmADT;
+} shmCDT;
 
-#define BUFFER_SIZE 1024;
 
 typedef struct shmCDT * shmADT;
 
 shmADT createShm(char * name);
 
-shmAdt connectShm(char * shm) 
+shmADT connectShm(char * shm) 
 
 void writeShm(shmADT shm, char * msg, int size);
 
