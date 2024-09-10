@@ -12,7 +12,7 @@ int main() {
         can_read = read(0, f_buffer, SLAVE_SIZE);
 
         if(can_read == 0){  //caso de EndOfFile
-            continue;                                   
+            continue;
         }
 
         f_buffer[can_read - 1] = '\0';                 //lo cerrmos con un enter :)

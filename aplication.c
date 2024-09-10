@@ -6,8 +6,8 @@ int main(int argc, char *argv[]) {
     int cant_slaves = getSlavesAmount(files_count); 
     pipe_master_slaves pipes[cant_slaves - 1];
 
-    if (argc < 2) {
-        printf("Not enough arguments\n");
+    if (files_count < 1) {
+        printf("No files passed as arguments\n");
         return -1;
     }
 
