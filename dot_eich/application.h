@@ -1,5 +1,5 @@
-#ifndef APLICATION_H
-#define APLICATION_H
+#ifndef APPLICATION_H
+#define APPLICATION_H
 
 #include <stdio.h>
 #include <stdlib.h>

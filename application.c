@@ -1,4 +1,4 @@
-#include <aplication.h>
+#include <application.h>
 
 int main(int argc, char *argv[]) {
     char buffer[BUFFER_SIZE] = {0};

@@ -8,8 +8,10 @@
 #include <sys/stat.h> 
 
 
+#define NAME_SIZE 32
+
 typedef struct shmADT {
-      char * name;
+      char name[NAME_SIZE];
       char buffer[BUFFER_SIZE];
       int write_offset;
       int read_offset;

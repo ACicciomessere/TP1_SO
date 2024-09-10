@@ -11,11 +11,11 @@ int main() {
     while(can_read > 0){
         can_read = read(0, f_buffer, SLAVE_SIZE);
 
-        if(can_read == 0){  //caso de EndOfFile
+        if(can_read == 0){
             continue;
         }
 
-        f_buffer[can_read - 1] = '\0';                 //lo cerrmos con un enter :)
+        f_buffer[can_read - 1] = '\0';
 
         int process = hash_func(f_buffer, hash);
 
@@ -50,7 +50,7 @@ int hash_func(char *file, char *buffer) {
     strcpy(fun_command, "md5sum /");                  //es esa barrita?? todo
     strcat(fun_command, file);
 
-    FILE* pipe = popen(fun_command, "r");           //fun_command ?? o command             
+    FILE* pipe = popen(fun_command, "r");           
     if(pipe == NULL){
         perror("Error opening pipe\n");
         free(fun_command);
