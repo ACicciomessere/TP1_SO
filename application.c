@@ -1,7 +1,7 @@
 #include "dot_eich/application.h"
 #include "dot_eich/sharedMemory.h"
 
-int main(int argc, char *argv[]) {
+int main (int argc, char *argv[]) {
     int files_count= argc - 1;
     int cant_slaves = getSlavesAmount(files_count);
     pipe_master_slaves pipes[cant_slaves - 1];
@@ -38,6 +38,8 @@ int main(int argc, char *argv[]) {
         close(pipes[i].pipe_to_slave[READ]);
         close(pipes[i].pipe_to_master[WRITE]);
     }
+
+    return 0;
 }
 
 void createSlave(int fd_ms_r, int fd_ms_w, int fd_sm_r, int fd_sm_w) {

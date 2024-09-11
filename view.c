@@ -1,4 +1,5 @@
 #include "dot_eich/application.h"
+#include "dot_eich/sharedMemory.h"
 
 int main(int argc, char *argv[]) {
       char shmName[NAME_SIZE];
