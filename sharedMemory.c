@@ -32,8 +32,8 @@ shmADT createShm(char * name) {
       return shm;
 }
 
-shmAdt connectShm(char * shm) {
-      int fd = shm_open(shm, O_RDWR, S_IRUSR | S_IWUSR);
+shmADT connectShm(char * shm_name) {
+      int fd = shm_open(shm_name, O_RDWR, S_IRUSR | S_IWUSR);
 
       if(fd == - 1) {
             perror("Error connecting to shared memory");
@@ -48,11 +48,11 @@ shmAdt connectShm(char * shm) {
       }
 
       if(shm_map == NULL) {
-            finishShm(shm);
+            finishShm(shm_name);
             exit(EXIT_FAILURE);
       }
 
-      if(sem_init(&shm->semaphore, 1, 1) == -1) {
+      if(sem_init(&shm_map->semaphore, 1, 1) == -1) {
             perror("Error creating semaphore");
             exit(EXIT_FAILURE);
       }
@@ -66,7 +66,7 @@ void writeShm(shmADT shm, char * msg, int size, sem_t sem) {
             exit(EXIT_FAILURE);
       }
 
-      if(shm == NULL || buffer == NULL) {
+      if(shm == NULL || msg == NULL) {
             perror("Invalid shared memory or buffer");
             exit(EXIT_FAILURE);
       }
@@ -74,10 +74,10 @@ void writeShm(shmADT shm, char * msg, int size, sem_t sem) {
       int i;
 
       for(i = 0; i < BUFFER_SIZE && shm->buffer[shm->write_offset] != '\0'; i++) {
-            shm->buffer[shm->write_offset++] = buffer[i];
+            shm->buffer[shm->write_offset++] = msg[i];
       }
 
-      shm->buffer[shm->write_offset++] = buffer[i];
+      shm->buffer[shm->write_offset++] = msg[i];
 
       sem_post(&shm->semaphore);
 
@@ -104,20 +104,11 @@ void readShm(shmADT shm, char * buffer) {
 }
 
 
-void finishShm(shmADT shm) {
-      if(shm_unlink(shm->name) == -1) {
+void finishShm(char * shm_name) {
+      if(shm_unlink(shm_name) == -1) {
             perror("Error deleting shared memory");
             exit(EXIT_FAILURE);
       }
-
-      if(sem_destroy(&shm->semaphore) == -1) {
-            perror("Error destroying semaphore");
-            exit(EXIT_FAILURE);
-      }
-
-      if(munmap(shm, sizeof(shmCDT)) == -1) {
-            perror("Error unmapping shared memory");
-            exit(EXIT_FAILURE);
-      }
+      return;
 }
 

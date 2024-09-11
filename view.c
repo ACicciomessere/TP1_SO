@@ -14,11 +14,11 @@ int main(int argc, char *argv[]) {
 
       while (1) {
             readShm(shm, buffer);
-            if (buff[0] == '\0') break;
+            if (buffer[0] == '\0') break;
             printf("%s\n", buffer);
       }
 
-      finishShm(shm);
+      finishShm(shm->name);
 
       return 0;
 }
