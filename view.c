@@ -16,7 +16,6 @@ int main(int argc, char *argv[]) {
 
       while (1) {
             readShm(shm, buffer);
-            printf(shm->name);
             if (buffer[0] == '\0') break;
             printf("%s\n", buffer);
       }

@@ -9,30 +9,28 @@ int main() {
     // char *string = malloc(sizeof(char)*400);
     char string[400];
 
-    printf("Slave ID: %d\n", pid);
-
-    while(can_read > 0){
-        can_read = read(STDIN_FILENO, f_buffer, SLAVE_SIZE);
-
-        if(can_read == 0){
-            continue;
+    while (1) {
+        int total_read = 0;
+        while (total_read < SLAVE_SIZE - 1) {
+            int n = read(STDIN_FILENO, &f_buffer[total_read], 1);
+            if (n <= 0) {
+                can_read = n;
+                break;
+            }
+            if (f_buffer[total_read] == '\0') {
+                break;
+            }
+            total_read += n;
         }
 
-        f_buffer[can_read - 1] = '\0';
-
-        int process = hash_func(f_buffer, hash);
-
-        if(process == -1){
-            perror("Error hashing file\n");
-            return -1;
+        if (can_read <= 0) {
+            break;
         }
+
+        f_buffer[total_read] = '\0';
 
         char* file_name = basename(f_buffer);
-
-        int len = strlen(string);
-
-        snprintf(string, len, "File: %s, Hash: %s, Slave ID: %d\n", file_name, hash, pid);
-        printf("%s \n", string);
+        snprintf(string, strlen(string), "File: %s, Hash: %s, Slave ID: %d\n", file_name, hash, pid);
     }
      
     if(can_read < 0){
@@ -63,12 +61,19 @@ int hash_func(char *file, char *buffer) {
         return -1;
     }
 
-    char h_buffer[HASH_SIZE];
+    char h_buffer[HASH_SIZE * 2];
     buffer[HASH_SIZE - 1] = '\0';                   
 
-    fgets(h_buffer, sizeof(h_buffer), pipe);
+    if (fgets(h_buffer, sizeof(h_buffer), pipe) == NULL) {
+        pclose(pipe);
+        free(fun_command);
+        return -1;
+    }
     pclose(pipe);
-    strcpy(buffer, h_buffer);
+    strncpy(buffer, h_buffer, 32);
+    buffer[32] = '\0';
     free(fun_command);
     return 0;
+
+
 }
