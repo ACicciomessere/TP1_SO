@@ -1,8 +1,9 @@
 #include "dot_eich/application.h"
 #include "dot_eich/sharedMemory.h"
 
+
 int main (int argc, char *argv[]) {
-    int files_count= argc - 1;
+    int files_count= argc;
     int cant_slaves = getSlavesAmount(files_count);
     pipe_master_slaves pipes[cant_slaves];
 
@@ -14,16 +15,16 @@ int main (int argc, char *argv[]) {
 
     char * shmName = "shm";
 
-    shmADT shm = createShm(shmName);        //Problema GCC
+    shmADT shm = createShm(shmName);
 
     for(int i=0; i<cant_slaves ; i++){
         if(pipe(pipes[i].pipe_to_slave) == -1 || pipe(pipes[i].pipe_to_master) == -1){
            perror("Couldnt create pipe.\n");
            exit(ERROR); 
         }
-
-        
-        if((pipes[i].pid = fork()) == 0 ){
+        pipes[i].pid = fork();
+        if(pipes[i].pid == 0 ) {
+            printf("%d\n", pipes[i].pid);
             for (int j = 0; j < cant_slaves; j++) {
                 if (j != i) {
                     close(pipes[j].pipe_to_slave[READ]);
@@ -34,7 +35,6 @@ int main (int argc, char *argv[]) {
             }
             close(pipes[i].pipe_to_slave[WRITE]); 
             close(pipes[i].pipe_to_master[READ]); 
-
             createSlave(pipes[i].pipe_to_slave[READ], pipes[i].pipe_to_master[WRITE]);
         }
     }
@@ -50,17 +50,20 @@ int main (int argc, char *argv[]) {
 }
 
 void createSlave(int fd_to_slave_read, int fd_to_master_write) {
+
     dup2(fd_to_slave_read, STDIN_FILENO);
     close(fd_to_slave_read);
 
     dup2(fd_to_master_write, STDOUT_FILENO);
     close(fd_to_master_write);
 
-    char *const args[] = {"./slave", NULL};
-    execve("./slave", args, NULL);
+    char * const extargv[] = {"./slave"};
 
-    perror("execve");
+    execv("./slave", extargv);
+
+
     exit(EXIT_FAILURE);
+
 }
 
 int getSlavesAmount(int files_amount){
@@ -77,7 +80,7 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
     int files_read = 0;
 
     fd_set read_fds;
-    int max_fd;
+    int max_fd = -1;
 
     for(int i = 0; i < slaves_amount && files_sent < files_amount; i++){
         sprintf(w_buff, "%s", files[files_sent++]);
@@ -97,7 +100,7 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
             if (pipes[j].pipe_to_master[READ] > max_fd)
                 max_fd = pipes[j].pipe_to_master[READ];
         }
-
+        
         int select_ready = select(max_fd + 1, &read_fds, NULL, NULL, NULL);
 
         if (select_ready < 0) {

@@ -16,7 +16,7 @@
 #define NAME_SIZE 32
 
 typedef struct shmCDT {
-      char * name;
+      char name[NAME_SIZE];
       char buffer[BUFFER_SIZE];
       int write_offset;
       int read_offset;
@@ -30,7 +30,7 @@ shmADT createShm(char * name);
 
 shmADT connectShm(char * shm);
 
-void writeShm(shmADT shm, char * msg, int size, sem_t sem);
+void writeShm(shmADT shm, char * msg, int size);
 
 void readShm(shmADT shm, char * buffer);
 

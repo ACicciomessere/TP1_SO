@@ -6,10 +6,13 @@ int main() {
     char hash[SLAVE_SIZE]; 
     pid_t pid = getpid();
     int can_read = 1;
-    char *string = malloc(sizeof(char)*400);
+    // char *string = malloc(sizeof(char)*400);
+    char string[400];
+
+    printf("Slave ID: %d\n", pid);
 
     while(can_read > 0){
-        can_read = read(0, f_buffer, SLAVE_SIZE);
+        can_read = read(STDIN_FILENO, f_buffer, SLAVE_SIZE);
 
         if(can_read == 0){
             continue;
@@ -36,7 +39,7 @@ int main() {
         return -1;
     } 
 
-    free(string);
+    // free(string);
     //cerrar la entrada y salida de pipes ? todo
     return 0;
 }
@@ -49,8 +52,9 @@ int hash_func(char *file, char *buffer) {
             return -1;
         }
 
-    strcpy(fun_command, "md5sum /");                  //es esa barrita?? todo
+    strcpy(fun_command, "md5sum \"");
     strcat(fun_command, file);
+    strcat(fun_command,"\" 2>/dev/null");
 
     FILE* pipe = popen(fun_command, "r");           
     if(pipe == NULL){

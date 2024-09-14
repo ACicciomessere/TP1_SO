@@ -25,7 +25,8 @@ shmADT createShm(char * name) {
             exit(EXIT_FAILURE);
       }
 
-      shm->name = name;
+      strncpy(shm->name, name, NAME_SIZE - 1);
+      shm->name[NAME_SIZE - 1] = '\0'; 
       shm->write_offset = 0;
       shm->read_offset = 0;
 
@@ -52,15 +53,18 @@ shmADT connectShm(char * shm_name) {
             exit(EXIT_FAILURE);
       }
 
-      if(sem_init(&shm_map->semaphore, 1, 1) == -1) {
-            perror("Error creating semaphore");
-            exit(EXIT_FAILURE);
-      }
+      // if(sem_init(&shm_map->semaphore, 1, 1) == -1) {
+      //       perror("Error creating semaphore");
+      //       exit(EXIT_FAILURE);
+      // }
+
+      strncpy(shm_map->name, shm_name, NAME_SIZE - 1);
+      shm_map->name[NAME_SIZE - 1] = '\0';
 
       return shm_map;
 }
 
-void writeShm(shmADT shm, char * msg, int size, sem_t sem) {
+void writeShm(shmADT shm, char * msg, int size) {
       if(size > BUFFER_SIZE) {
             perror("Message too big for the buffer");
             exit(EXIT_FAILURE);
@@ -71,13 +75,13 @@ void writeShm(shmADT shm, char * msg, int size, sem_t sem) {
             exit(EXIT_FAILURE);
       }
 
-      int i;
-
-      for(i = 0; i < BUFFER_SIZE && shm->buffer[shm->write_offset] != '\0'; i++) {
-            shm->buffer[shm->write_offset++] = msg[i];
+      if (sem_wait(&shm->semaphore) != 0) {
+        perror("Failed to lock semaphore");
+        exit(EXIT_FAILURE);
       }
 
-      shm->buffer[shm->write_offset++] = msg[i];
+      memcpy(shm->buffer, msg, size);
+      shm->buffer[size] = '\0'; // Ensure null termination
 
       sem_post(&shm->semaphore);
 
@@ -105,10 +109,23 @@ void readShm(shmADT shm, char * buffer) {
 
 
 void finishShm(char * shm_name) {
-      if(shm_unlink(shm_name) == -1) {
-            perror("Error deleting shared memory");
-            exit(EXIT_FAILURE);
+      // if(shm_unlink(shm_name) == -1) {
+      //       perror("Error deleting shared memory");
+      //       exit(EXIT_FAILURE);
+      // }
+      // return;
+       if(shm_name==NULL){
+        perror("Invalid shared memory name");
+        exit(EXIT_FAILURE);
       }
-      return;
+
+      int return_value;
+
+      return_value= shm_unlink(shm_name);
+      if(return_value == -1){
+        exit(EXIT_FAILURE);
+      }
+      exit(EXIT_SUCCESS);
+
 }
 
