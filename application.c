@@ -4,7 +4,8 @@
 int main (int argc, char *argv[]) {
     int files_count= argc - 1;
     int cant_slaves = getSlavesAmount(files_count);
-    pipe_master_slaves pipes[cant_slaves - 1];
+    pipe_master_slaves pipes[cant_slaves];
+
 
     if (files_count < 1) {
         printf("No files passed as arguments\n");
@@ -22,13 +23,35 @@ int main (int argc, char *argv[]) {
         }
 
         if((pipes[i].pid = fork()) == 0 ){
-           int j = i -1;
-           while (j >= 0){                                       
+        //    int j = i -1;
+        //    while (j >= 0){                                       
+        //         close(pipes[j].pipe_to_slave[WRITE]);
+        //         close(pipes[j].pipe_to_master[READ]);
+        //         j--;
+        //    } 
+        //    createSlave(pipes[j].pipe_to_slave[READ], pipes[j].pipe_to_slave[WRITE], pipes[j].pipe_to_master[READ], pipes[j].pipe_to_master[WRITE]);
+        if((pipes[i].pid = fork()) == 0 ){
+    // Child process
+    // Close unused ends of all pipes
+        for (int j = 0; j < cant_slaves; j++) {
+            if (j != i) {
+                close(pipes[j].pipe_to_slave[READ]);
                 close(pipes[j].pipe_to_slave[WRITE]);
                 close(pipes[j].pipe_to_master[READ]);
-                j--;
-           } 
-           createSlave(pipes[j].pipe_to_slave[READ], pipes[j].pipe_to_slave[WRITE], pipes[j].pipe_to_master[READ], pipes[j].pipe_to_master[WRITE]);
+                close(pipes[j].pipe_to_master[WRITE]);
+            }
+        }
+        // Close unused ends of the current pipe
+        close(pipes[i].pipe_to_slave[WRITE]); // Child doesn't write to this pipe
+        close(pipes[i].pipe_to_master[READ]); // Child doesn't read from this pipe
+
+        // Now, the child will read from pipe_to_slave[READ], and write to pipe_to_master[WRITE]
+        createSlave(pipes[i].pipe_to_slave[READ], pipes[i].pipe_to_master[WRITE]);
+
+        // If exec fails
+        perror("execve");
+        exit(EXIT_FAILURE);
+}
         }
     }
 
@@ -42,18 +65,36 @@ int main (int argc, char *argv[]) {
     return 0;
 }
 
-void createSlave(int fd_ms_r, int fd_ms_w, int fd_sm_r, int fd_sm_w) {
-    close(fd_ms_w);
-    close(fd_sm_r);
-    close(STDOUT_FILENO);
-    dup(fd_sm_w);
-    close(STDIN_FILENO);
-    dup(fd_ms_r);
+// void createSlave(int fd_ms_r, int fd_ms_w, int fd_sm_r, int fd_sm_w) {
+//     close(fd_ms_w);
+//     close(fd_sm_r);
+//     close(STDOUT_FILENO);
+//     dup(fd_sm_w);
+//     close(STDIN_FILENO);
+//     dup(fd_ms_r);
 
-    close(fd_sm_w);
-    close(fd_ms_r);
-    char *const secArg[] = {"./slaves", NULL};
-    execve("./slave", secArg, NULL);
+//     close(fd_sm_w);
+//     close(fd_ms_r);
+//     char *const secArg[] = {"./slaves", NULL};
+//     execve("./slave", secArg, NULL);
+// }
+
+void createSlave(int fd_to_slave_read, int fd_to_master_write) {
+    // Redirect stdin to fd_to_slave_read
+    dup2(fd_to_slave_read, STDIN_FILENO);
+    close(fd_to_slave_read);
+
+    // Redirect stdout to fd_to_master_write
+    dup2(fd_to_master_write, STDOUT_FILENO);
+    close(fd_to_master_write);
+
+    // Execute the slave process
+    char *const args[] = {"./slave", NULL};
+    execve("./slave", args, NULL);
+
+    // If execve fails
+    perror("execve");
+    exit(EXIT_FAILURE);
 }
 
 int getSlavesAmount(int files_amount){
