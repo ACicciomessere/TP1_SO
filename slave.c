@@ -8,7 +8,6 @@ int main() {
     char* bname;
     int read_bytes = 1;
     pid_t pid = getpid();
-    sleep(5);
     while(read_bytes > 0){
         read_bytes = read(0, buff, sizeof(buff));
         if (read_bytes <= 0)
@@ -56,7 +55,7 @@ int hash_func( char* file, char* hash){
         return EXIT_FAILURE;
     }
 
-    char buff[33];
+    char buff[1024];
     fgets(buff, sizeof(buff), pipe);
 
     strcpy(hash, buff);
