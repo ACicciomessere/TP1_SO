@@ -5,6 +5,8 @@ int main() {
     char buff[SLAVE_SIZE] = {0};
     char hash[SLAVE_SIZE] = {0};
     char* str = malloc(sizeof(char)*300);
+
+    //chequear null str
     char* bname;
     int read_bytes = 1;
     pid_t pid = getpid();

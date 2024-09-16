@@ -81,6 +81,7 @@ void writeShm(shmADT shm, char * msg, int size) {
       }
 
       memcpy(shm->buffer, msg, size);
+      //usar write offset
       shm->buffer[size] = '\0'; 
 
       sem_post(&shm->semaphore);

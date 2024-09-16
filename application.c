@@ -24,13 +24,11 @@ int main (int argc, char *argv[]) {
         }
         pipes[i].pid = fork();
         if(pipes[i].pid == 0 ) {
-            for (int j = 0; j < cant_slaves; j++) {
-                if (j != i) {
+            for (int j = 0; j < i; j++) {
                     close(pipes[j].pipe_to_slave[READ]);
                     close(pipes[j].pipe_to_slave[WRITE]);
                     close(pipes[j].pipe_to_master[READ]);
                     close(pipes[j].pipe_to_master[WRITE]);
-                }
             }
             sleep(2);
             createSlave(pipes[i].pipe_to_slave[READ], pipes[i].pipe_to_master[WRITE]);            
@@ -76,7 +74,7 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
 
     for(int i = 0; i < slaves_amount && files_sent < files_amount; i++){
         sprintf(w_buff, "%s", files[files_sent++]);
-        int r_write = write(pipes[i].pipe_to_slave[WRITE], w_buff, sizeof(w_buff));
+        int r_write = write(pipes[i].pipe_to_slave[WRITE], w_buff, strlen(w_buff));
         if (r_write < 0){                                                  
             perror("write");
             exit(1);
@@ -115,7 +113,7 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
 
                 if (files_sent < files_amount) {
                     sprintf(w_buff, "%s", files[files_sent++]);
-                    int r_write = write(pipes[j].pipe_to_slave[WRITE], w_buff, sizeof(w_buff));
+                    int r_write = write(pipes[j].pipe_to_slave[WRITE], w_buff, strlen(w_buff));
                     if (r_write < 0){                                                  
                         perror("write");
                         exit(1);
