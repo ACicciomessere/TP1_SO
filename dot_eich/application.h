@@ -11,7 +11,6 @@
 #include <string.h>
 #include <semaphore.h>
 #include "sharedMemory.h"
-#include <signal.h>
 
 #define BUFFER_SIZE 1024
 #define SLAVES_AMOUNT 5

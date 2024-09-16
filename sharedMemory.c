@@ -34,8 +34,8 @@ shmADT createShm(char * name) {
 }
 
 shmADT connectShm(char * shm_name) {
-      int fd = shm_open(shm_name, O_CREAT | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
-      
+      int fd = shm_open(shm_name, O_RDWR, S_IRUSR | S_IWUSR);
+
       if(fd == - 1) {
             perror("Error connecting to shared memory");
             exit(EXIT_FAILURE);
@@ -80,7 +80,7 @@ void writeShm(shmADT shm, char * msg, int size) {
         exit(EXIT_FAILURE);
       }
 
-      strcpy(shm->buffer, msg);
+      memcpy(shm->buffer, msg, size);
       shm->buffer[size] = '\0'; // Ensure null termination
 
       sem_post(&shm->semaphore);

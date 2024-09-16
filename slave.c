@@ -8,7 +8,7 @@ int main() {
     char* bname;
     int read_bytes = 1;
     pid_t pid = getpid();
-
+    sleep(5);
     while(read_bytes > 0){
         read_bytes = read(0, buff, sizeof(buff));
         if (read_bytes <= 0)
@@ -40,7 +40,7 @@ int main() {
 
 int hash_func( char* file, char* hash){
 
-    char* command = malloc(1000*sizeof(char));
+    char* command = malloc(300*sizeof(char));
     if ( command == NULL ){
         return EXIT_FAILURE;
     }
@@ -56,7 +56,7 @@ int hash_func( char* file, char* hash){
         return EXIT_FAILURE;
     }
 
-    char buff[HASH_SIZE];
+    char buff[33];
     fgets(buff, sizeof(buff), pipe);
 
     strcpy(hash, buff);
@@ -66,4 +66,3 @@ int hash_func( char* file, char* hash){
 
     return EXIT_SUCCESS;
 }
-

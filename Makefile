@@ -1,10 +1,10 @@
-FLAGS := -Wall -std=c99 -D_XOPEN_SOURCE=500 -pedantic -g -lpthread
+FLAGS := -Wall -std=c99 -D_XOPEN_SOURCE=500 -pedantic -g  -fsanitize=address -lpthread
 CC := gcc
 
 all: sharedMemory application view slave
 
 sharedMemory:
-	$(CC) -Wall -std=c99 -D_XOPEN_SOURCE=500  -pedantic -g -c -lpthread sharedMemory.c -o sharedMemory
+	$(CC) -Wall -std=c99 -D_XOPEN_SOURCE=500  -pedantic -g -c -fsanitize=address -lpthread sharedMemory.c -o sharedMemory
 
 application:
 	$(CC) $(FLAGS) application.c -o application sharedMemory.c
