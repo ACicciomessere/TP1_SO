@@ -13,8 +13,7 @@ int main (int argc, char *argv[]) {
         return -1;
     }
 
-    char * shmName = "shm";
-
+    char * shmName = "/shm";
     shmADT shm = createShm(shmName);
 
     for(int i=0; i<cant_slaves ; i++){
@@ -85,8 +84,6 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
     } 
    
     while (files_read < files_amount) {
-        printf("Files read: %d\n", files_read);
-        printf("Files amount: %d\n", files_amount);
         FD_ZERO(&read_fds);
         int max_fd = -1;
 
@@ -99,9 +96,7 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
         struct timeval tv;
         tv.tv_sec = 5;  
         tv.tv_usec = 0;
-        printf("Max fd: %d\n", max_fd);
         int select_ready = select(max_fd + 1, &read_fds, NULL, NULL, &tv);
-        printf("Select ready: %d\n", select_ready);
 
         if (select_ready < 0) {
             perror("select");
