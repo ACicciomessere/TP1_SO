@@ -81,7 +81,7 @@ void writeShm(shmADT shm, char * msg, int size) {
       }
 
       memcpy(shm->buffer, msg, size);
-      shm->buffer[size] = '\0'; // Ensure null termination
+      shm->buffer[size] = '\0'; 
 
       sem_post(&shm->semaphore);
 

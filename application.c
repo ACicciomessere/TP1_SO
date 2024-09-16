@@ -76,7 +76,7 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
 
     for(int i = 0; i < slaves_amount && files_sent < files_amount; i++){
         sprintf(w_buff, "%s", files[files_sent++]);
-        int r_write = write(pipes[i].pipe_to_slave[WRITE], w_buff, strlen(w_buff) + 1);
+        int r_write = write(pipes[i].pipe_to_slave[WRITE], w_buff, sizeof(w_buff));
         if (r_write < 0){                                                  
             perror("write");
             exit(1);
@@ -84,8 +84,6 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
     } 
    
     while (files_read < files_amount) {
-        printf("Files read: %d\n", files_read);
-        printf("Files amount: %d\n", files_amount);
         FD_ZERO(&read_fds);
         int max_fd = -1;
 
@@ -95,12 +93,7 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
                 max_fd = pipes[j].pipe_to_master[READ];
         }
         
-        struct timeval tv;
-        tv.tv_sec = 5;  
-        tv.tv_usec = 0;
-        printf("Max fd: %d\n", max_fd);
-        int select_ready = select(max_fd + 1, &read_fds, NULL, NULL, &tv);
-        printf("Select ready: %d\n", select_ready);
+        int select_ready = select(max_fd + 1, &read_fds, NULL, NULL, NULL);
 
         if (select_ready < 0) {
             perror("select");
@@ -111,27 +104,22 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
 
         for (int j = 0; j < slaves_amount; j++) {
             if (FD_ISSET(pipes[j].pipe_to_master[READ], &read_fds)) {
-                ssize_t len = read(pipes[j].pipe_to_master[READ], w_buff, sizeof(w_buff) - 1);
+                ssize_t len = read(pipes[j].pipe_to_master[READ], w_buff, sizeof(w_buff));
                 if (len < 0) {
                     perror("read");
                     return;
                 }
-                if (len == 0) {
-                    printf("End of file encountered.\n");
-                }
                 w_buff[len] = '\0';
-                writeShm(shm, w_buff, len + 1);
+                writeShm(shm, w_buff, len);
                 files_read++;
 
                 if (files_sent < files_amount) {
                     sprintf(w_buff, "%s", files[files_sent++]);
-                    int r_write = write(pipes[j].pipe_to_slave[WRITE], w_buff, strlen(w_buff) + 1);
+                    int r_write = write(pipes[j].pipe_to_slave[WRITE], w_buff, sizeof(w_buff));
                     if (r_write < 0){                                                  
                         perror("write");
                         exit(1);
                     }
-                } else {
-                    close(pipes[j].pipe_to_slave[WRITE]);
                 }
             }
         }

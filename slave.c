@@ -13,7 +13,7 @@ int main() {
         if (read_bytes <= 0)
             continue;
 
-        buff[read_bytes-1]='\0';
+        buff[read_bytes]='\0';
 
         int status = hash_func(buff, hash);
         if ( status != 0 ){
@@ -44,7 +44,6 @@ int hash_func( char* file, char* hash){
         return EXIT_FAILURE;
     }
 
-    // formatting the command
     strcpy(command,"md5sum \"");
     strcat(command,file);
     strcat(command,"\" 2>/dev/null");
@@ -55,7 +54,7 @@ int hash_func( char* file, char* hash){
         return EXIT_FAILURE;
     }
 
-    char buff[1024];
+    char buff[33];
     fgets(buff, sizeof(buff), pipe);
 
     strcpy(hash, buff);
