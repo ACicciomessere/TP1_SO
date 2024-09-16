@@ -20,9 +20,7 @@ int main(int argc, char *argv[]) {
             printf("%s\n", buffer);
       }
 
-      munmap(shm, sizeof(shmCDT));
-
-      //finishShm(shm->name);
+      finishShm(shm);
 
       return 0;
 }

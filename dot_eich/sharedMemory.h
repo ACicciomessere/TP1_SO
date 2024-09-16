@@ -34,6 +34,6 @@ void writeShm(shmADT shm, char * msg, int size);
 
 void readShm(shmADT shm, char * buffer);
 
-void finishShm(char * shm_name);
+void finishShm(shmADT shm_name);
 
 #endif

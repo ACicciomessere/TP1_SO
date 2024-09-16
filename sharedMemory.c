@@ -49,7 +49,7 @@ shmADT connectShm(char * shm_name) {
       }
 
       if(shm_map == NULL) {
-            finishShm(shm_name);
+            finishShm(shm_map);
             exit(EXIT_FAILURE);
       }
 
@@ -108,24 +108,23 @@ void readShm(shmADT shm, char * buffer) {
 }
 
 
-void finishShm(char * shm_name) {
-      // if(shm_unlink(shm_name) == -1) {
-      //       perror("Error deleting shared memory");
-      //       exit(EXIT_FAILURE);
-      // }
-      // return;
-       if(shm_name==NULL){
-        perror("Invalid shared memory name");
-        exit(EXIT_FAILURE);
+void finishShm(shmADT shm_name) {
+      char shmName[NAME_SIZE];
+      strcpy(shmName, shm_name->name);
+
+      if(sem_destroy(&shm_name->semaphore) == -1) {
+            perror("Error destroying semaphore");
+            exit(EXIT_FAILURE);
       }
 
-      int return_value;
-
-      return_value= shm_unlink(shm_name);
-      if(return_value == -1){
-        exit(EXIT_FAILURE);
+      if(munmap(shm_name, sizeof(*shm_name)) == -1) {
+            perror("Error unmapping shared memory");
+            exit(EXIT_FAILURE);
       }
-      exit(EXIT_SUCCESS);
 
+      if(shm_unlink(shmName) == -1) {
+            perror("Error unlinking shared memory");
+            exit(EXIT_FAILURE);
+      }
 }
 

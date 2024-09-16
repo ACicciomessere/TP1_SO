@@ -55,7 +55,6 @@ void createSlave(int fd_to_slave_read, int fd_to_master_write) {
     dup2(fd_to_master_write, STDOUT_FILENO);
     close(fd_to_master_write);
 
-    char * argv[] ={"./slave",NULL};
     execl("./slave", "./slave", (char*) NULL);
 
     exit(EXIT_FAILURE);
