@@ -73,9 +73,7 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
     char w_buff[BUFFER_SIZE];
     int files_sent = 0;
     int files_read = 0;
-
     fd_set read_fds;
-    int max_fd = -1;
 
     for(int i = 0; i < slaves_amount && files_sent < files_amount; i++){
         sprintf(w_buff, "%s", files[files_sent++]);
@@ -85,12 +83,12 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
             exit(1);
         }
     } 
-
+   
     while (files_read < files_amount) {
         printf("Files read: %d\n", files_read);
         printf("Files amount: %d\n", files_amount);
         FD_ZERO(&read_fds);
-        max_fd = -1;
+        int max_fd = -1;
 
         for (int j = 0; j < slaves_amount; j++) {
             FD_SET(pipes[j].pipe_to_master[READ], &read_fds);
@@ -119,9 +117,11 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
                     perror("read");
                     return;
                 }
+                if (len == 0) {
+                    printf("End of file encountered.\n");
+                }
                 w_buff[len] = '\0';
                 writeShm(shm, w_buff, len + 1);
-
                 files_read++;
 
                 if (files_sent < files_amount) {

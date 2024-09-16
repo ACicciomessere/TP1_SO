@@ -2,79 +2,67 @@
 
 int main() {
 
-    char f_buffer[SLAVE_SIZE];
-    char hash[SLAVE_SIZE]; 
+    char buff[SLAVE_SIZE] = {0};
+    char hash[SLAVE_SIZE] = {0};
+    char* str = malloc(sizeof(char)*300);
+    char* bname;
+    int read_bytes = 1;
     pid_t pid = getpid();
-    int can_read = 1;
-    // char *string = malloc(sizeof(char)*400);
-    char string[400];
+    sleep(5);
+    while(read_bytes > 0){
+        read_bytes = read(0, buff, sizeof(buff));
+        if (read_bytes <= 0)
+            continue;
 
-    while (1) {
-        int total_read = 0;
-        while (total_read < SLAVE_SIZE - 1) {
-            int n = read(STDIN_FILENO, &f_buffer[total_read], 1);
-            if (n <= 0) {
-                can_read = n;
-                break;
-            }
-            if (f_buffer[total_read] == '\0') {
-                break;
-            }
-            total_read += n;
+        buff[read_bytes-1]='\0';
+
+        int status = hash_func(buff, hash);
+        if ( status != 0 ){
+            perror("Hashing error");
+            exit(EXIT_FAILURE);
         }
+        bname = basename(buff);
+        sprintf( str, "File: %s - Md5: %s - Slave Pid: %d\n", bname, hash, pid);
 
-        if (can_read <= 0) {
-            break;
-        }
-
-        f_buffer[total_read] = '\0';
-
-        char* file_name = basename(f_buffer);
-        snprintf(string, strlen(string), "File: %s, Hash: %s, Slave ID: %d\n", file_name, hash, pid);
-        write(STDOUT_FILENO, string, strlen(string) + 1);  // Include null terminator
+        write(1, str, strlen(str));
+        fsync(1);
     }
-     
-    if(can_read < 0){
-        return -1;
-    } 
+    if ( read_bytes < 0 ){
+        exit(1);
+    }
 
-    // free(string);
-    //cerrar la entrada y salida de pipes ? todo
-    return 0;
+    free(str);
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    exit(EXIT_SUCCESS);
+
 }
 
-int hash_func(char *file, char *buffer) {
+int hash_func( char* file, char* hash){
 
-    char * fun_command = malloc(sizeof(char)*400);
-    if (fun_command == NULL) {
-            perror("malloc");
-            return -1;
-        }
-
-    strcpy(fun_command, "md5sum \"");
-    strcat(fun_command, file);
-    strcat(fun_command,"\" 2>/dev/null");
-
-    FILE* pipe = popen(fun_command, "r");           
-    if(pipe == NULL){
-        perror("Error opening pipe\n");
-        free(fun_command);
-        return -1;
+    char* command = malloc(300*sizeof(char));
+    if ( command == NULL ){
+        return EXIT_FAILURE;
     }
 
-    char h_buffer[HASH_SIZE * 2];
-    buffer[HASH_SIZE - 1] = '\0';                   
+    // formatting the command
+    strcpy(command,"md5sum \"");
+    strcat(command,file);
+    strcat(command,"\" 2>/dev/null");
 
-    if (fgets(h_buffer, sizeof(h_buffer), pipe) == NULL) {
-        pclose(pipe);
-        free(fun_command);
-        return -1;
+    FILE* pipe = popen(command, "r");
+    if ( pipe == NULL ){
+        perror("Error");
+        return EXIT_FAILURE;
     }
+
+    char buff[33];
+    fgets(buff, sizeof(buff), pipe);
+
+    strcpy(hash, buff);
+
     pclose(pipe);
-    strncpy(buffer, h_buffer, 32);
-    buffer[32] = '\0';
-    free(fun_command);
-    return 0;
+    free(command);
 
-
+    return EXIT_SUCCESS;
 }
