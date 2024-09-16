@@ -3,13 +3,13 @@
 
 
 int main (int argc, char *argv[]) {
-    int files_count= argc;
+    int files_count= argc -1;
     int cant_slaves = getSlavesAmount(files_count);
     pipe_master_slaves pipes[cant_slaves];
 
 
     if (files_count < 1) {
-        printf("No files passed as arguments\n");
+        perror("No files passed as arguments\n");
         return -1;
     }
 
@@ -49,20 +49,16 @@ int main (int argc, char *argv[]) {
 
 void createSlave(int fd_to_slave_read, int fd_to_master_write) {
 
-    dup(fd_to_slave_read);
+    dup2(fd_to_slave_read, STDIN_FILENO);
     close(fd_to_slave_read);
 
-    dup(fd_to_master_write);
+    dup2(fd_to_master_write, STDOUT_FILENO);
     close(fd_to_master_write);
 
     char * argv[] ={"./slave",NULL};
-
-
-    execv("./slave",argv);
-
+    execl("./slave", "./slave", (char*) NULL);
 
     exit(EXIT_FAILURE);
-
 }
 
 int getSlavesAmount(int files_amount){
@@ -91,7 +87,8 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
     } 
 
     while (files_read < files_amount) {
-        printf("Files read: %d\n", files_amount);
+        printf("Files read: %d\n", files_read);
+        printf("Files amount: %d\n", files_amount);
         FD_ZERO(&read_fds);
         max_fd = -1;
 
@@ -101,8 +98,11 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
                 max_fd = pipes[j].pipe_to_master[READ];
         }
         
+        struct timeval tv;
+        tv.tv_sec = 5;  
+        tv.tv_usec = 0;
         printf("Max fd: %d\n", max_fd);
-        int select_ready = select(max_fd + 1, &read_fds, NULL, NULL, NULL);
+        int select_ready = select(max_fd + 1, &read_fds, NULL, NULL, &tv);
         printf("Select ready: %d\n", select_ready);
 
         if (select_ready < 0) {

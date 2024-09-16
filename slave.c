@@ -31,6 +31,7 @@ int main() {
 
         char* file_name = basename(f_buffer);
         snprintf(string, strlen(string), "File: %s, Hash: %s, Slave ID: %d\n", file_name, hash, pid);
+        write(STDOUT_FILENO, string, strlen(string) + 1);  // Include null terminator
     }
      
     if(can_read < 0){
