@@ -100,15 +100,6 @@ void readShm(shmADT shm, char * buffer) {
       return;
 }
 
-int getFlag(shmADT shm){
-      return shm->flag;
-}
-
-void setFlag(shmADT shm, int val){
-      shm->flag = val;
-}
-
-
 void finishShm(shmADT shm_name) {
       char shmName[NAME_SIZE];
       strcpy(shmName, shm_name->name);
@@ -129,3 +120,10 @@ void finishShm(shmADT shm_name) {
       }
 }
 
+int getFlag(shmADT shm){
+      return shm->flag;
+}
+
+void setFlag(shmADT shm, int n){
+      shm->flag = n;
+}

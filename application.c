@@ -129,4 +129,3 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
         setFlag(shm, 1);
     }
 }
-

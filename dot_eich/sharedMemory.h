@@ -39,7 +39,7 @@ void readShm(shmADT shm, char * buffer);
 
 int getFlag(shmADT shm);
 
-void setFlag(shmADT shm, int val); 
+void setFlag(shmADT shm, int n);
 
 void finishShm(shmADT shm_name);
 

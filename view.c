@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
       while (i > 0) {
             if(getFlag(shm)){
                   if(sem_getvalue(shm, &shm->semaphore) == -1){
-                        break;
+                  break;
                   }
             }
             readShm(shm, buffer);
