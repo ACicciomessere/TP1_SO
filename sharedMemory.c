@@ -37,7 +37,6 @@ shmADT createShm(char * name) {
 }
 
 shmADT connectShm(char * shm_name) {
-      sleep(3);
       int fd = shm_open(shm_name, O_RDWR, S_IRUSR | S_IWUSR);
 
       if(fd == - 1) {

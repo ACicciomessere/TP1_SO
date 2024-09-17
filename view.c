@@ -7,11 +7,10 @@ int main(int argc, char *argv[]) {
             strncpy(shmName, argv[1], NAME_SIZE - 1);
             shmName[NAME_SIZE - 1] = '\0';
       } else {
-            printf("me ?? nothing \n");
             scanf("%31s", shmName);
       }
 
-      char ready[20];
+      char ready[SMALL_BUFFER];
       while (fgets(ready, sizeof(ready), stdin)) {
             if(strcmp(ready, "SHM_READY\n") == 0)
             break;

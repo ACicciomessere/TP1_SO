@@ -14,6 +14,7 @@
 
 #define BUFFER_SIZE 1024
 #define NAME_SIZE 32
+#define SMALL_BUFFER 20
 
 typedef struct shmCDT {
       char name[NAME_SIZE];
