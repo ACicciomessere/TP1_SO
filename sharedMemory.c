@@ -88,23 +88,17 @@ void writeShm(shmADT shm, char * msg, int size) {
 }
 
 void readShm(shmADT shm, char * buffer) {
-      printf("antes, %ld", &shm->semaphore);
       if (sem_wait(&shm->semaphore) != 0) {
             perror("Failed to lock semaphore before accessing shared memory");
             exit(EXIT_FAILURE);
       }
-      printf("dsp, %ld", &shm->semaphore);
-
+      
       shm->read_offset += sprintf(buffer, "%s", &(shm->buffer[shm->read_offset])) + 1;
-      printf("blabla\n");  // Debugging
-
       if (shm->read_offset >= shm->write_offset) {
-        printf("Resetting read/write offsets\n");  // Debugging
         shm->read_offset = 0;
         shm->write_offset = 0;
       }
 
-      printf("pase el if\n ");
       return;
 }
 
