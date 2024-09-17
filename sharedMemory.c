@@ -30,10 +30,14 @@ shmADT createShm(char * name) {
       shm->write_offset = 0;
       shm->read_offset = 0;
 
+      const char *ready_signal = "SHM_READY";
+      write(STDOUT_FILENO, ready_signal, strlen(ready_signal));
+      fflush(stdout);
       return shm;
 }
 
 shmADT connectShm(char * shm_name) {
+      sleep(3);
       int fd = shm_open(shm_name, O_RDWR, S_IRUSR | S_IWUSR);
 
       if(fd == - 1) {
@@ -52,11 +56,6 @@ shmADT connectShm(char * shm_name) {
             finishShm(shm_map);
             exit(EXIT_FAILURE);
       }
-
-      // if(sem_init(&shm_map->semaphore, 1, 1) == -1) {
-      //       perror("Error creating semaphore");
-      //       exit(EXIT_FAILURE);
-      // }
 
       strncpy(shm_map->name, shm_name, NAME_SIZE - 1);
       shm_map->name[NAME_SIZE - 1] = '\0';

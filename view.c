@@ -11,9 +11,14 @@ int main(int argc, char *argv[]) {
             scanf("%31s", shmName);
       }
 
-      shmADT shm = connectShm(shmName);
+      char ready[20];
+      while (fgets(ready, sizeof(ready), stdin)) {
+            if(strcmp(ready, "SHM_READY\n") == 0)
+            break;
+      }
 
       char buffer[BUFFER_SIZE];
+      shmADT shm = connectShm(shmName);
 
       int i = shm->iter;
       while (i > 0) {
@@ -22,11 +27,8 @@ int main(int argc, char *argv[]) {
                         break;
                   }
             }
-      
-            printf("%d\n", i);
             readShm(shm, buffer);
             if (buffer[0] == '\0'){
-                  printf("Aaaa");
                   break;
             }
             printf("%s\n", buffer);
