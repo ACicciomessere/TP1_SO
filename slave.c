@@ -17,8 +17,7 @@ int main() {
     while(read_bytes > 0){
         read_bytes = read(STDIN_FILENO, buffer, sizeof(buffer));
         if (read_bytes <= 0)
-            continue;
-
+            break;
         buffer[read_bytes]='\0';
         int status = hash_func(buffer, hash);
         if ( status != 0 ){
@@ -30,9 +29,6 @@ int main() {
         sprintf( str, "File: %s - Md5: %s - Slave Pid: %d\n", bname, hash, pid);
         write(STDOUT_FILENO, str, strlen(str));
         fsync(1);
-    }
-    if ( read_bytes < 0 ){
-        exit(EXIT_FAILURE);
     }
 
     free(str);

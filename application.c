@@ -41,6 +41,12 @@ int main (int argc, char *argv[]) {
         close(pipes[i].pipe_to_master[WRITE]);
     }
 
+    for(int i = 0; i < cant_slaves; i++){
+        close(pipes[i].pipe_to_slave[READ]);
+        close(pipes[i].pipe_to_master[WRITE]);
+        kill(pipes[i].pid);
+    }
+
     return 0;
 }
 
@@ -124,27 +130,3 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
     }
 }
 
-/*
-void close_selected_fd(pipe_master_slaves pipes[], int slave_amount, int in_out){
-    for ( int i = 0; i < slave_amount; i++ ){
-        if ( in_out == 2 ){
-            close(pipes[i].pipe_to_master[READ]);
-            if (close(pipes[i].pipe_to_slave[WRITE]) == -1){
-                perror("Error when closing1");
-                exit (EXIT_FAILURE);
-            }
-        }else if(in_out == 1){
-            if (close(pipes[i].pipe_to_slave[WRITE]) == -1){
-                perror("Error when closing2");
-                exit (EXIT_FAILURE);
-            }
-        }
-        else if(in_out == 0){
-            if (close(pipes[i].pipe_to_master[READ]) == -1){
-                perror("Error when closing3");
-                exit (EXIT_FAILURE);
-            }
-        }
-    }
-}
-*/
