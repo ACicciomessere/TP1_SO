@@ -20,7 +20,7 @@ shmADT createShm(char * name) {
             exit(EXIT_FAILURE);
       }
 
-      if(sem_init(&shm->semaphore, 1, 0) == -1) {
+      if(sem_init(&shm->semaphore, 1, 1) == -1) {
             perror("Error creating semaphore");
             exit(EXIT_FAILURE);
       }
@@ -88,28 +88,32 @@ void writeShm(shmADT shm, char * msg, int size) {
 }
 
 void readShm(shmADT shm, char * buffer) {
+      printf("antes, %ld", &shm->semaphore);
       if (sem_wait(&shm->semaphore) != 0) {
             perror("Failed to lock semaphore before accessing shared memory");
             exit(EXIT_FAILURE);
       }
-
-      // int i; 
-
-      // for(i = 0; i < BUFFER_SIZE && shm->buffer[shm->read_offset] != 0; i++) {
-      //       buffer[i] = shm->buffer[shm->read_offset++];
-      // }
-
-      // shm->read_offset++;
-
-      // buffer[i] = 0;
+      printf("dsp, %ld", &shm->semaphore);
 
       shm->read_offset += sprintf(buffer, "%s", &(shm->buffer[shm->read_offset])) + 1;
+      printf("blabla\n");  // Debugging
+
       if (shm->read_offset >= shm->write_offset) {
+        printf("Resetting read/write offsets\n");  // Debugging
         shm->read_offset = 0;
         shm->write_offset = 0;
       }
 
+      printf("pase el if\n ");
       return;
+}
+
+int getFlag(shmADT shm){
+      return shm->flag;
+}
+
+void setFlag(shmADT shm, int val){
+      shm->flag = val;
 }
 
 

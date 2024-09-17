@@ -33,6 +33,7 @@ int main (int argc, char *argv[]) {
         }
     }
     shmADT shm = createShm(shmName);
+    shm->iter=files_count;
 
     sendFilesToSlaves(argv + 1, files_count, cant_slaves, pipes, shm);
 
@@ -120,5 +121,6 @@ void sendFilesToSlaves(char *files[], int files_amount, int slaves_amount, pipe_
                 }
             }
         }
+        setFlag(shm, 1);
     }
 }
