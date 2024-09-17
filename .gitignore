@@ -6,3 +6,4 @@ view
 /application
 .DS_Store
 .bash_history
+.lesshst
