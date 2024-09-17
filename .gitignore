@@ -1,0 +1,8 @@
+files
+.vscode
+sharedMemory
+slave
+view
+/application
+.DS_Store
+.bash_history
