@@ -39,11 +39,6 @@ int main (int argc, char *argv[]) {
     for(int i = 0; i < cant_slaves; i++){
         close(pipes[i].pipe_to_slave[READ]);
         close(pipes[i].pipe_to_master[WRITE]);
-    }
-
-    for(int i = 0; i < cant_slaves; i++){
-        close(pipes[i].pipe_to_slave[READ]);
-        close(pipes[i].pipe_to_master[WRITE]);
         kill(pipes[i].pid);
     }
 
