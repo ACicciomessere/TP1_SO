@@ -21,10 +21,8 @@ int main(int argc, char *argv[]) {
 
       int i = shm->iter;
       while (i > 0) {
-            if(getFlag(shm)){
-                  if(sem_getvalue(shm, &shm->semaphore) == -1){
-                        break;
-                  }
+            if(sem_getvalue(shm, &shm->semaphore) == -1){
+                  break;
             }
             readShm(shm, buffer);
             if (buffer[0] == '\0'){

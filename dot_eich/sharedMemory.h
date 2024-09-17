@@ -21,7 +21,6 @@ typedef struct shmCDT {
       char buffer[BUFFER_SIZE];
       int write_offset;
       int read_offset;
-      int flag;
       int iter;
       sem_t semaphore;
 } shmCDT;
@@ -36,10 +35,6 @@ shmADT connectShm(char * shm);
 void writeShm(shmADT shm, char * msg, int size);
 
 void readShm(shmADT shm, char * buffer);
-
-int getFlag(shmADT shm);
-
-void setFlag(shmADT shm, int val); 
 
 void finishShm(shmADT shm_name);
 
