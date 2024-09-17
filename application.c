@@ -15,8 +15,6 @@ int main (int argc, char *argv[]) {
 
     char * shmName = "shm";
 
-    shmADT shm = createShm(shmName);
-
     for(int i=0; i<cant_slaves ; i++){
         if(pipe(pipes[i].pipe_to_slave) == -1 || pipe(pipes[i].pipe_to_master) == -1){
            perror("Couldnt create pipe.\n");
@@ -34,6 +32,7 @@ int main (int argc, char *argv[]) {
             createSlave(pipes[i].pipe_to_slave[READ], pipes[i].pipe_to_master[WRITE]);            
         }
     }
+    shmADT shm = createShm(shmName);
 
     sendFilesToSlaves(argv + 1, files_count, cant_slaves, pipes, shm);
 

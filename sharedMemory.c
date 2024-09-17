@@ -20,7 +20,7 @@ shmADT createShm(char * name) {
             exit(EXIT_FAILURE);
       }
 
-      if(sem_init(&shm->semaphore, 1, 1) == -1) {
+      if(sem_init(&shm->semaphore, 1, 0) == -1) {
             perror("Error creating semaphore");
             exit(EXIT_FAILURE);
       }
@@ -80,10 +80,8 @@ void writeShm(shmADT shm, char * msg, int size) {
         exit(EXIT_FAILURE);
       }
 
-      memcpy(shm->buffer, msg, size);
-      //usar write offset
-      shm->buffer[size] = '\0'; 
-
+      snprintf(&(shm->buffer[shm->write_offset]), size + 1, "%s", msg);
+      shm->write_offset += size + 1;
       sem_post(&shm->semaphore);
 
       return;
@@ -95,15 +93,21 @@ void readShm(shmADT shm, char * buffer) {
             exit(EXIT_FAILURE);
       }
 
-      int i; 
+      // int i; 
 
-      for(i = 0; i < BUFFER_SIZE && shm->buffer[shm->read_offset] != 0; i++) {
-            buffer[i] = shm->buffer[shm->read_offset++];
+      // for(i = 0; i < BUFFER_SIZE && shm->buffer[shm->read_offset] != 0; i++) {
+      //       buffer[i] = shm->buffer[shm->read_offset++];
+      // }
+
+      // shm->read_offset++;
+
+      // buffer[i] = 0;
+
+      shm->read_offset += sprintf(buffer, "%s", &(shm->buffer[shm->read_offset])) + 1;
+      if (shm->read_offset >= shm->write_offset) {
+        shm->read_offset = 0;
+        shm->write_offset = 0;
       }
-
-      shm->read_offset++;
-
-      buffer[i] = 0;
 
       return;
 }

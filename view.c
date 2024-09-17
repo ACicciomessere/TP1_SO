@@ -14,6 +14,8 @@ int main(int argc, char *argv[]) {
 
       char buffer[BUFFER_SIZE];
 
+      int i = 0;
+
       while (1) {
             readShm(shm, buffer);
             if (buffer[0] == '\0') break;

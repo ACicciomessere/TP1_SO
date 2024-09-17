@@ -49,8 +49,6 @@ int hash_func( char* file, char* hash){
     strcpy(command,"md5sum ");
     strcat(command,file);
 
-    fprintf(stderr, "|%s|\n", command);
-
     FILE* pipe = popen(command, "r");
     if ( pipe == NULL ){
         perror("Error");
