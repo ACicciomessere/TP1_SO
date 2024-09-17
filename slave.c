@@ -6,7 +6,11 @@ int main() {
     char hash[SLAVE_SIZE] = {0};
     char* str = malloc(sizeof(char)*300);
 
-    //chequear null str
+    if(str == NULL){
+        perror("Malloc error");
+        exit(EXIT_FAILURE);
+    }
+   
     char* bname;
     int read_bytes = 1;
     pid_t pid = getpid();
