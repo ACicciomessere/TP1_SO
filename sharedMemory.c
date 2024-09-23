@@ -78,6 +78,12 @@ void writeShm(shmADT shm, char * msg, int size) {
         exit(EXIT_FAILURE);
       }
 
+      if (shm->write_offset + size + 1 > BUFFER_SIZE) {
+            perror("Shared memory buffer overflow");
+            sem_post(&shm->semaphore);
+            exit(EXIT_FAILURE);
+      }
+
       snprintf(&(shm->buffer[shm->write_offset]), size + 1, "%s", msg);
       shm->write_offset += size + 1;
       sem_post(&shm->semaphore);
