@@ -12,7 +12,7 @@
 #include <string.h>
 #include <errno.h>
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 1000000
 #define NAME_SIZE 32
 #define SMALL_BUFFER 20
 
